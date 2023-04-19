@@ -1,6 +1,4 @@
-.awstoken
-.mfaserial
 dist
 build
-aws_mfa.egg-info
+cli_aws_mfa.egg-info
 __pycache__/

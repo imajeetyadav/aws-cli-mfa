@@ -7,7 +7,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, "README.md"), encoding="utf-8") as fh:
     long_description = "\n" + fh.read()
 
-VERSION = "0.0.1"
+VERSION = "0.0.4"
 DESCRIPTION = "CLI AWS MFA"
 LONG_DESCRIPTION = "Use MFA to increase the security of your AWS environment. Signing in with MFA requires an authentication code from an MFA device. Each user can have a maximum of 8 MFA devices assigned"
 
@@ -22,9 +22,10 @@ setup(
     long_description=long_description,
     packages=["MFA"],
     keywords=["aws", "mfa", "virtual"],
+    py_modules=["cli"],
     entry_points={
         "console_scripts": [
-            "cli-aws-mfa = cli:cli",
+            "cli-aws-mfa = cli:mfa",
         ]
     },
     install_requires=["click", "boto3"],

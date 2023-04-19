@@ -2,78 +2,48 @@ import click
 from MFA.mfa import MFA
 
 
-@click.command()
-@click.option(
-    "--profile", help="Give any name for you local profile. default: mfa-user"
-)
-@click.option(
-    "--arn",
-    help="Please input the ARN of your MFA device (e.g. arn:aws:iam::123456789012:mfa/user)",
-)
-@click.option(
-    "--token",
-    help="Please input your MFA token code:",
-)
-def cli(profile, arn, token):
-    if profile and arn:
-        click.secho("Using profile {} and MFA ARN {}".format(profile, arn), fg="green")
-        mfa = MFA(profile_name=profile, mfa_arn=arn)
-        token = input("Please input your MFA token code: ")
-        mfa.set_mfa_token(token)
+@click.group()
+def mfa():
+    click.secho("Setup the ARN and Profile")
+    pass
+
+
+@mfa.command()
+def init():
+    profile = input("Give any name for your profile: ")
+    arn = input(
+        "Please input the ARN of your MFA device (e.g. arn: aws: iam: : 123456789012: mfa/user): "
+    )
+    click.secho("Using profile {} and MFA ARN {}".format(
+        profile, arn), fg="green")
+    mfa = MFA(profile_name=profile, mfa_arn=arn)
+    token = input("Please input your MFA token code: ")
+    mfa.set_mfa_token(token)
+    try:
         mfa.set_credential(mfa.authenticate())
-        validate(mfa.validate_session)
-
-    elif profile and token:
-        mfa = MFA(profile_name=profile)
-        if mfa.check_mfa_arn_file:
-            arn = mfa.get_arn_from_file()
-            click.secho(
-                "Using profile {} and MFA ARN {}".format(profile, arn), fg="green"
-            )
-            mfa.set_mfa_token(token)
-            mfa.set_credential(mfa.authenticate())
-            validate(mfa.validate_session)
-
-    elif arn:
+    except:
         click.secho(
-            'Using Default profile name - "mfa-user" and  MFA ARN {}'.format(arn),
-            fg="green",
-        )
-        mfa = MFA(profile_name="mfa-user", mfa_arn=arn)
+            'Authenication Failed ( Invalid Token/ARN or Access Denied )', fg='red')
+    validate(mfa.validate_session)
+
+
+@mfa.command()
+def refresh():
+    mfa = MFA()
+    if mfa.check_mfa_arn_file:
+        try:
+            arn = mfa.get_arn_from_file()
+            profile = mfa.get_profile_from_file()
+        except:
+            click.secho('Please use "cli-aws-mfa init" command', fg="yellow")
+            exit(1)
+        mfa.set_mfa_arn(arn)
+        click.secho("Using Profile {} and MFA ARN {}".format(
+            profile, arn), fg="green")
         token = input("Please input your MFA token code: ")
         mfa.set_mfa_token(token)
         mfa.set_credential(mfa.authenticate())
         validate(mfa.validate_session)
-
-    elif profile:
-        mfa = MFA(profile_name=profile)
-        if mfa.check_mfa_arn_file:
-            arn = mfa.get_arn_from_file()
-            mfa.set_mfa_arn(arn)
-            click.secho(
-                "Using Profile {} and MFA ARN {}".format(profile, arn), fg="green"
-            )
-            token = input("Please input your MFA token code: ")
-            mfa.set_mfa_token(token)
-            mfa.set_credential(mfa.authenticate())
-            validate(mfa.validate_session)
-        else:
-            click.secho("MFA ARN is required", fg="red")
-    elif token:
-        mfa = MFA(profile_name=profile)
-        if mfa.check_mfa_arn_file:
-            arn = mfa.get_arn_from_file()
-            mfa.set_mfa_arn(arn)
-            click.secho(
-                "Using Profile {} and MFA ARN {}".format(profile, arn), fg="green"
-            )
-            token = input("Please input your MFA token code: ")
-            mfa.set_mfa_token(token)
-            mfa.set_credential(mfa.authenticate())
-            validate(mfa.validate_session)
-
-        else:
-            click.secho("MFA ARN is required", fg="red")
 
     else:
         click.secho("MFA ARN is required", fg="red")
@@ -83,8 +53,8 @@ def validate(validate_session):
     if validate_session:
         click.secho("Successfully Authenticated", fg="green")
     else:
-        click.secho("Authenticated Failed", fg="red")
+        click.secho("Authentication Failed", fg="red")
 
 
 if __name__ == "__main__":
-    cli()
+    mfa()

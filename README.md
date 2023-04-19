@@ -4,6 +4,17 @@ Developed by Ajeet Yadav
 
 ## Example of How To Use
 
+```
+# Setup ARN and profile name
+cli-aws-mfa init
+
+# Refresh Session Token
+cli-aws-mfa refresh 
+
+```
+
+## Policy Used for CLI MFA
+
 ```json
 {
     "Version": "2012-10-17",

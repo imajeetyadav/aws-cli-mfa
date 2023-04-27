@@ -41,11 +41,13 @@ class MFA:
         config.read(credentials_path)
 
         if self.profile_name in config.sections():
-            config.set(self.profile_name, "aws_access_key_id", aws_access_key_id)
+            config.set(self.profile_name,
+                       "aws_access_key_id", aws_access_key_id)
             config.set(
                 self.profile_name, "aws_secret_access_key", aws_secret_access_key
             )
-            config.set(self.profile_name, "aws_session_token", aws_session_token)
+            config.set(self.profile_name,
+                       "aws_session_token", aws_session_token)
             with open(credentials_path, "w") as f:
                 config.write(f)
         else:
@@ -91,22 +93,6 @@ class MFA:
             self.profile_name = open(mfa_profile_file, "r").read().strip()
 
         return self.profile_name
-
-    def set_credtiona(self):
-        config = configparser.ConfigParser()
-
-        config.read(creds_path)
-
-        if "profilename" in config.sections():
-            print("Profile already exists")
-        else:
-            # Add the new profile to the credentials file
-            config["profilename"] = new_profile
-
-            with open(creds_path, "w") as configfile:
-                config.write(configfile)
-
-            print("Profile added successfully")
 
     def validate_session(self):
         session = boto3.Session(profile_name=self.profile_name)
